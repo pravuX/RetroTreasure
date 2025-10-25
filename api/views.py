@@ -1,22 +1,16 @@
-from django.shortcuts import render,redirect,get_object_or_404
-from rest_framework.decorators import api_view
+from django.shortcuts import render, redirect, get_object_or_404
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate,login,logout
-from rest_framework import status 
-from app.models import CustomUser,Product,Cart
-from .serializers import ProductSerializer,CartSerializer
-from django.contrib.auth.decorators import login_required
-from django.urls import reverse
+from django.contrib.auth import authenticate, login, logout
+from rest_framework import status
+from app.models import CustomUser, Product, Cart, Transaction
+from .serializers import ProductSerializer, CartSerializer
 import uuid
 import hashlib
 import hmac
 import base64
 from django.db import IntegrityError
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from app.models import Transaction
 
 
 @api_view(["POST"])
@@ -82,73 +76,60 @@ def trending_product(request):
 def product_view(request):
     ...
 
-@login_required(login_url="/login") 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def add_to_cart(request,productId):
-    if request.user.is_authenticated:
+    user = request.user
+    product = get_object_or_404(Product,id=productId)
 
-        data = request.data
-        user=request.user
-        product = get_object_or_404(Product,id=productId)
+    cart_item, created = Cart.objects.get_or_create(user=user, product=product, status=0)
 
-        cart_item, created = Cart.objects.get_or_create(user=user, product=product, status=0)
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+        return Response({"message": "Cart updated successfully", "quantity": cart_item.quantity}, status=200)
 
-        if not created:
-            cart_item.quantity += 1
-            cart_item.save()
-            return Response({"message": "Cart updated successfully", "quantity": cart_item.quantity}, status=200)
-
-        return Response({"message":"Product added to cart "},status=status.HTTP_201_CREATED)
+    return Response({"message":"Product added to cart "},status=status.HTTP_201_CREATED)
         
-    else:
-        return Response({"message":"user need to login before cart"},status=status.HTTP_401_UNAUTHORIZED)
-    
-
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def decrement_cart(request, productId):
-    # Get the product or 404
-    if request.user.is_authenticated:
-        product = get_object_or_404(Product, id=productId)
+    product = get_object_or_404(Product, id=productId)
 
-        # Get all matching cart entries
-        cart_items = Cart.objects.filter(user=request.user, product=product).order_by('-id')
+    # Get all matching cart entries for the authenticated user
+    cart_items = Cart.objects.filter(user=request.user, product=product).order_by('-id')
 
-        if not cart_items.exists():
-            return Response({"error": "Cart item not found."}, status=status.HTTP_404_NOT_FOUND)
+    if not cart_items.exists():
+        return Response({"error": "Cart item not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        cart = cart_items.first()  # Use the most recent one
+    cart = cart_items.first()  # Use the most recent one
 
-        if cart.quantity > 0:
-            cart.quantity -= 1
-            cart.save()
-            return Response({"message": "Product quantity decremented."}, status=status.HTTP_200_OK)
-        else:
-            return Response({"message": "Quantity already at zero."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        
+    if cart.quantity > 0:
+        cart.quantity -= 1
+        cart.save()
+        return Response({"message": "Product quantity decremented."}, status=status.HTTP_200_OK)
+    else:
+        return Response({"message": "Quantity already at zero."}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_cart(request):
-    if request.user.is_authenticated:
-        carts = Cart.objects.filter(user=request.user, status=0).select_related('product')
-        serializer = CartSerializer(carts, many=True, context={'request': request})
-        
-        return Response(serializer.data, status=200)  # Directly returning the list
+    carts = Cart.objects.filter(user=request.user, status=0).select_related('product')
+    serializer = CartSerializer(carts, many=True, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
-    return Response({'message': 'User not authenticated'}, status=401)
 
 @api_view(['DELETE'])
-def delete_cart(request,cartId):
-    
-    if Cart.objects.filter(id=cartId).exists():
-
+@permission_classes([IsAuthenticated])
+def delete_cart(request, cartId):
+    if Cart.objects.filter(id=cartId, user=request.user).exists():
         cart = Cart.objects.get(id=cartId)
         cart.delete()
+        return Response({'message': "cart delete successfully"}, status=status.HTTP_200_OK)
 
-        return Response({'message':"cart delete successfully"},status=status.HTTP_200_OK)
-    
-    return Response({'error':"cart not found"},status=status.HTTP_404_NOT_FOUND)
+    return Response({'error': "cart not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["POST"])

@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - RetroTreasure</title>
+    <link rel="stylesheet" href="https://unpkg.com/98.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="window main-window">
+        <div class="title-bar">
+            <div class="title-bar-text">RetroTreasure - Register</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize"></button>
+                <button aria-label="Maximize"></button>
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h1>Create Account</h1>
+                    <p>Join RetroTreasure to start shopping</p>
+                </div>
+
+                <form id="registerForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="firstName" placeholder="First Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="lastName" placeholder="Last Name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="username" placeholder="Username" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" class="form-control" id="password" placeholder="Password" required>
+                    </div>
+
+                    <button type="submit" class="button auth-btn" id="registerBtn">
+                        <span class="btn-text">Create Account</span>
+                    </button>
+                </form>
+
+                <div class="footer-links">
+                    <a href="{% url 'login_page' %}">Already have an account? Sign In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getCSRFToken() {
+            let csrfToken = null;
+            document.cookie.split(';').forEach(cookie => {
+                let [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    csrfToken = value;
+                }
+            });
+            return csrfToken;
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification-window ${type}`;
+            notification.innerHTML = `
+                <div class="title-bar">
+                    <div class="title-bar-text">${type === 'error' ? 'Error' : 'Success'}</div>
+                    <div class="title-bar-controls">
+                        <button aria-label="Close" onclick="this.parentElement.parentElement.remove()"></button>
+                    </div>
+                </div>
+                <div class="window-body">
+                    <div>${message}</div>
+                </div>
+            `;
+
+            // Get existing notifications
+            const existingNotifications = document.querySelectorAll('.notification-window');
+
+            // Remove oldest notification if we have 3 or more
+            if (existingNotifications.length >= 3) {
+                existingNotifications[0].remove();
+            }
+
+            document.body.appendChild(notification);
+
+            // Auto-dismiss after 3 seconds
+            setTimeout(() => {
+                notification.classList.add('slide-out');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const registerBtn = document.getElementById('registerBtn');
+            const csrfToken = getCSRFToken();
+
+            if (firstName.length < 2 || lastName.length < 2) {
+                showNotification('First and last names must be at least 2 characters long', 'error');
+                return;
+            }
+
+            registerBtn.classList.add('loading');
+            registerBtn.innerHTML = 'Creating Account...';
+
+            fetch('/api/register/post/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({
+                    firstName,
+                    lastName,
+                    username,
+                    password
+                })
+            })
+            .then(function(response) {
+                return response.json().then(function(data) {
+                    if (response.ok) {
+                        showNotification('Registration successful! Redirecting...', 'success');
+                        setTimeout(function() {
+                            window.location.href = '/login/';
+                        }, 1500);
+                    } else {
+                        showNotification(data.message || 'An error occurred. Please try again.', 'error');
+                    }
+                });
+            })
+            .catch(function(err) {
+                showNotification('Network error. Please check your connection.', 'error');
+            })
+            .finally(function() {
+                registerBtn.classList.remove('loading');
+                registerBtn.innerHTML = '<span class="btn-text">Create Account</span>';
+            });
+        });
+    </script>
+</body>
+</html>

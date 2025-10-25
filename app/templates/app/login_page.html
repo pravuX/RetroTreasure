@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - RetroTreasure</title>
+    <link rel="stylesheet" href="https://unpkg.com/98.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="window main-window">
+        <div class="title-bar">
+            <div class="title-bar-text">RetroTreasure - Login</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize"></button>
+                <button aria-label="Maximize"></button>
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to continue shopping</p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="username" placeholder="Username" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" class="form-control" id="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="button auth-btn" id="loginBtn">
+                        <span class="btn-text">Sign In</span>
+                    </button>
+                </form>
+
+                <div class="footer-links">
+                    <a href="{% url 'register_page' %}">Create Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getCSRFToken() {
+            let csrfToken = null;
+            document.cookie.split(';').forEach(cookie => {
+                let [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    csrfToken = value;
+                }
+            });
+            return csrfToken;
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification-window ${type}`;
+            notification.innerHTML = `
+                <div class="title-bar">
+                    <div class="title-bar-text">${type === 'error' ? 'Error' : 'Success'}</div>
+                    <div class="title-bar-controls">
+                        <button aria-label="Close" onclick="this.parentElement.parentElement.remove()"></button>
+                    </div>
+                </div>
+                <div class="window-body">
+                    <div>${message}</div>
+                </div>
+            `;
+
+            // Get existing notifications
+            const existingNotifications = document.querySelectorAll('.notification-window');
+
+            // Remove oldest notification if we have 3 or more
+            if (existingNotifications.length >= 3) {
+                existingNotifications[0].remove();
+            }
+
+            document.body.appendChild(notification);
+
+            // Auto-dismiss after 3 seconds
+            setTimeout(() => {
+                notification.classList.add('slide-out');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const csrfToken = getCSRFToken();
+
+            loginBtn.classList.add('loading');
+            loginBtn.innerHTML = 'Signing in...';
+
+            fetch('/api/login/post/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json().then(data => {
+                if (response.ok) {
+                    showNotification('Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1500);
+                } else {
+                    showNotification(data.error || 'An error occurred. Please try again.', 'error');
+                }
+            }))
+            .catch(() => {
+                showNotification('Network error. Please check your connection.', 'error');
+            })
+            .finally(() => {
+                loginBtn.classList.remove('loading');
+                loginBtn.innerHTML = '<span class="btn-text">Sign In</span>';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>RetroTreasure - Retro E-commerce Store</title>
+   <link rel="stylesheet" href="https://unpkg.com/98.css">
+   <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+   <div class="window main-window">
+      <div class="title-bar">
+         <div class="title-bar-text">RetroTreasure - Retro E-commerce Store</div>
+         <div class="title-bar-controls">
+            <button aria-label="Minimize"></button>
+            <button aria-label="Maximize"></button>
+            <button aria-label="Close" id="close-button"></button>
+         </div>
+      </div>
+      <div class="window-body">
+         <div class="window" style="margin: 0;">
+            <div class="title-bar">
+               <div class="title-bar-text">Navigation</div>
+            </div>
+            <div class="window-body">
+               <div class="navigation-container">
+                  <a href="{% url 'home_page' %}" class="nav-brand">
+                     <i class="fas fa-store"></i>
+                     <span>RetroTreasure</span>
+                  </a>
+                  <menu role="tablist" class="multirows">
+                     <li role="tab" {% if request.path == '/' %}aria-selected="true"{% endif %}><a href="{% url 'home_page' %}">Home</a></li>
+                     <li role="tab" {% if request.path == '/products/' %}aria-selected="true"{% endif %}><a href="{% url 'products_page' %}">Products</a></li>
+                     <li role="tab" {% if request.path == '/cart/' %}aria-selected="true"{% endif %}><a href="{% url 'cart_page' %}">Cart <span id="cart-count">0</span></a></li>
+                  </menu>
+                  <menu role="tablist" class="multirows">
+                     {% if user.is_authenticated %}
+                        <li role="tab"><a href="#" class="user-name">{{ user.username }}</a></li>
+                        <li role="tab" {% if request.path == '/logout/' %}aria-selected="true"{% endif %}><a href="{% url 'logout_page' %}">Logout</a></li>
+                     {% else %}
+                        <li role="tab" {% if request.path == '/login/' %}aria-selected="true"{% endif %}><a href="{% url 'login_page' %}">Login</a></li>
+                     {% endif %}
+                  </menu>
+               </div>
+            </div>
+         </div>
+
+         <div class="window" style="margin-top: 1rem; flex: 1;">
+            <div class="title-bar">
+               <div class="title-bar-text">Welcome to RetroTreasure</div>
+            </div>
+            <div class="window-body welcome-section">
+               <h1 class="welcome-content">Your one-stop shop for all your needs</h1>
+               <p><a href="{% url 'products_page' %}" class="button default">Browse Products</a></p>
+
+                <!--provides service 24/7, delivery all over the country, 100% secure payment, best quality products-->
+                <div class="service-section">
+                    <div class="service-item">
+                        <i class="fas fa-clock"></i>
+                        <h3>24/7 Service</h3>
+                        <p>Our support team is available 24/7 to assist you.</p>
+                    </div>
+                    <div class="service-item">
+                        <i class="fas fa-truck"></i>
+                        <h3>Delivery</h3>
+                        <p>We deliver to all over the country.</p>
+                    </div>
+                    <div class="service-item">
+                        <i class="fas fa-lock"></i>
+                        <h3>100% Secure Payment</h3>
+                        <p>We use the latest encryption technology to secure your payment information.</p>
+                    </div>
+                    <div class="service-item">
+                        <i class="fas fa-star"></i>
+                        <h3>Best Quality Products</h3>
+                        <p>We only sell the best quality products.</p>
+                    </div>
+                </div>
+
+
+
+
+
+
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <script src="{% static 'app/script.js' %}"></script>
+</body>
+</html>

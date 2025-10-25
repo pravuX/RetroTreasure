@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Cart - RetroTreasure</title>
+   <link rel="stylesheet" href="https://unpkg.com/98.css">
+   <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+   <div class="window main-window">
+      <div class="title-bar">
+         <div class="title-bar-text">RetroTreasure - Cart</div>
+         <div class="title-bar-controls">
+            <button aria-label="Minimize"></button>
+            <button aria-label="Maximize"></button>
+            <button aria-label="Close"></button>
+         </div>
+      </div>
+      <div class="window-body">
+         <div class="window" style="margin: 0;">
+            <div class="title-bar">
+               <div class="title-bar-text">Navigation</div>
+            </div>
+            <div class="window-body">
+               <div class="navigation-container">
+                  <a href="{% url 'home_page' %}" class="nav-brand">
+                     <i class="fas fa-store"></i>
+                     <span>RetroTreasure</span>
+                  </a>
+                  <menu role="tablist" class="multirows">
+                     <li role="tab" {% if request.path == '/' %}aria-selected="true"{% endif %}><a href="{% url 'home_page' %}">Home</a></li>
+                     <li role="tab" {% if request.path == '/products/' %}aria-selected="true"{% endif %}><a href="{% url 'products_page' %}">Products</a></li>
+                     <li role="tab" {% if request.path == '/cart/' %}aria-selected="true"{% endif %}><a href="{% url 'cart_page' %}">Cart <span id="cart-count">0</span></a></li>
+                  </menu>
+                  <menu role="tablist" class="multirows">
+                     {% if user.is_authenticated %}
+                        <li role="tab"><a href="#" class="user-name">{{ user.username }}</a></li>
+                        <li role="tab" {% if request.path == '/logout/' %}aria-selected="true"{% endif %}><a href="{% url 'logout_page' %}">Logout</a></li>
+                     {% else %}
+                        <li role="tab" {% if request.path == '/login/' %}aria-selected="true"{% endif %}><a href="{% url 'login_page' %}">Login</a></li>
+                     {% endif %}
+                  </menu>
+               </div>
+            </div>
+         </div>
+
+         <div class="window" style="margin-top: 1rem; flex: 1;">
+            <div class="title-bar">
+               <div class="title-bar-text">Your Cart</div>
+            </div>
+            <div class="window-body">
+               <div id="cart-items" class="cart-items">
+                  <!-- Cart items will be loaded here -->
+               </div>
+               <div class="cart-total">
+                  Total: <span id="cart-total">$ 0.00</span>
+               </div>
+               <button class="button checkout-btn" onclick="initiatePayment()">Proceed to Checkout</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <!-- Hidden eSewa Payment Form -->
+   <form id="esewaPaymentForm" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST" style="display: none;">
+       <input type="hidden" name="amount" id="amount">
+       <input type="hidden" name="tax_amount" id="tax_amount">
+       <input type="hidden" name="total_amount" id="total_amount">
+       <input type="hidden" name="transaction_uuid" id="transaction_uuid">
+       <input type="hidden" name="product_code" id="product_code">
+       <input type="hidden" name="product_service_charge" id="product_service_charge">
+       <input type="hidden" name="product_delivery_charge" id="product_delivery_charge">
+       <input type="hidden" name="success_url" id="success_url">
+       <input type="hidden" name="failure_url" id="failure_url">
+       <input type="hidden" name="signed_field_names" id="signed_field_names">
+       <input type="hidden" name="signature" id="signature">
+   </form>
+
+   <script src="{% static 'app/script.js' %}"></script>
+   <script>
+      // Update the updateCartUI function to use the new button style
+      function updateCartUI() {
+         const cartCount = document.getElementById('cart-count');
+         if (cartCount) {
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            cartCount.textContent = totalItems;
+         }
+
+         const cartContainer = document.getElementById('cart-items');
+         const cartTotal = document.getElementById('cart-total');
+
+         if (cartContainer && cartTotal) {
+            if (cart.length === 0) {
+               cartContainer.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
+               cartTotal.textContent = '$ 0.00';
+               return;
+            }
+
+            cartContainer.innerHTML = cart.map(item => `
+               <div class="cart-item">
+                  <img src="${item.image}" alt="${item.name}">
+                  <div class="cart-item-info">
+                     <h3 class="cart-item-name">${item.name}</h3>
+                     <p class="cart-item-price">$ ${item.price}</p>
+                  </div>
+                  <div class="quantity-controls">
+                     <button class="default" onclick="decrementQuantity(${item.product_id})">-</button>
+                     <span class="quantity-display">${item.quantity}</span>
+                     <button class="default" onclick="addToCart(${item.product_id})">+</button>
+                     <button class="remove-btn" onclick="removeFromCart(${item.id})">
+                        <i class="fas fa-trash"></i>
+                     </button>
+                  </div>
+               </div>
+            `).join('');
+
+            const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+            cartTotal.textContent = `$ ${total.toFixed(2)}`;
+
+            // Update checkout button visibility
+            const checkoutButton = document.querySelector('.checkout-btn');
+            if (checkoutButton) {
+               checkoutButton.style.display = cart.length > 0 ? 'block' : 'none';
+            }
+         }
+      }
+   </script>
+</body>
+</html>

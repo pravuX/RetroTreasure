@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Products - RetroTreasure</title>
+   <link rel="stylesheet" href="https://unpkg.com/98.css">
+   <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+   <div class="window main-window">
+      <div class="title-bar">
+         <div class="title-bar-text">RetroTreasure - Products</div>
+         <div class="title-bar-controls">
+            <button aria-label="Minimize"></button>
+            <button aria-label="Maximize"></button>
+            <button aria-label="Close"></button>
+         </div>
+      </div>
+      <div class="window-body">
+         <div class="window" style="margin: 0;">
+            <div class="title-bar">
+               <div class="title-bar-text">Navigation</div>
+            </div>
+            <div class="window-body">
+               <div class="navigation-container">
+                  <a href="{% url 'home_page' %}" class="nav-brand">
+                     <i class="fas fa-store"></i>
+                     <span>RetroTreasure</span>
+                  </a>
+                  <menu role="tablist" class="multirows">
+                     <li role="tab" {% if request.path == '/' %}aria-selected="true"{% endif %}><a href="{% url 'home_page' %}">Home</a></li>
+                     <li role="tab" {% if request.path == '/products/' %}aria-selected="true"{% endif %}><a href="{% url 'products_page' %}">Products</a></li>
+                     <li role="tab" {% if request.path == '/cart/' %}aria-selected="true"{% endif %}><a href="{% url 'cart_page' %}">Cart <span id="cart-count">0</span></a></li>
+                  </menu>
+                  <menu role="tablist" class="multirows">
+                     {% if user.is_authenticated %}
+                        <li role="tab"><a href="#" class="user-name">{{ user.username }}</a></li>
+                        <li role="tab" {% if request.path == '/logout/' %}aria-selected="true"{% endif %}><a href="{% url 'logout_page' %}">Logout</a></li>
+                     {% else %}
+                        <li role="tab" {% if request.path == '/login/' %}aria-selected="true"{% endif %}><a href="{% url 'login_page' %}">Login</a></li>
+                     {% endif %}
+                  </menu>
+               </div>
+            </div>
+         </div>
+
+         <div class="window" style="margin-top: 1rem; flex: 1;">
+            <div class="title-bar">
+               <div class="title-bar-text">Our Products</div>
+            </div>
+            <div class="window-body">
+               <div id="products-container" class="products-grid">
+                  <!-- Products will be loaded here -->
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <script src="{% static 'app/script.js' %}"></script>
+</body>
+</html>

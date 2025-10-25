@@ -1,0 +1,84 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.env
+.env.*
+.venv/
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+
+# Django stuff:
+db.sqlite3
+staticfiles/
+# Do not ignore app/static if you intentionally track source static files
+
+# Logs and local settings
+*.log
+local_settings.py
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Node
+node_modules/
+
+# Python packaging
+*.egg
+*.egg-info
+*.whl
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Misc
+coverage.xml
+coverage/
+*.cover
+*.py,cover
+
+# Celery
+celerybeat-schedule
+
+# Secrets
+secrets.json
+
+# Backup files
+*.bak
+*~
+
+# Ignore compiled C extensions
+*.so

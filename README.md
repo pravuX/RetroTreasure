@@ -1,6 +1,6 @@
-# ePasal - E-Commerce Website
+# RetroTreasure - E-Commerce Website
 
-ePasal is a fully functional e-commerce platform designed for easy online shopping. It offers product listings, a shopping cart, and a buyer dashboard. The project is built using Django for the backend and HTML/CSS for the frontend.
+RetroTreasure is a fully functional e-commerce platform designed for easy online shopping. It offers product listings, a shopping cart, and a buyer dashboard. The project is built using Django for the backend and HTML/CSS for the frontend.
 
 ## Features
 
@@ -16,7 +16,7 @@ Follow the steps below to set up and run the project on your local machine:
 ### Step 1: Clone the repository
 ```bash
 git clone https://github.com/prejanNeu/E-Commerce.git
-cd ePasal
+cd RetroTreasure
 ```
 
 ### Step 2: Install python
@@ -49,6 +49,6 @@ python manage.py runserver
 Visit http://127.0.0.1:8000/ in your browser to start using the platform.
 
 ## Website Link
-You can view the live version of the website by visiting: [Visit the ePasal Website](http://prejjj.pythonanywhere.com)
+You can view the live version of the website by visiting: [Visit the RetroTreasure Website](http://prejjj.pythonanywhere.com)
 
 

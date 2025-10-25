@@ -20,16 +20,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ybcb!gd8qbx%(gp@ewd%jm992^jwy&b*+l#99qf229vfrlt=2c'
+# keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-ybcb!gd8qbx%(gp@ewd%jm992^jwy&b*+l#99qf229vfrlt=2c')
 
-DEBUG = True
+# DEBUG toggle via environment variable. In production set DJANGO_DEBUG=0 or false.
+DEBUG = True if os.environ.get('DJANGO_DEBUG', '1') == '1' else False
 
-ALLOWED_HOSTS = ['*']
+# Hosts allowed to serve the app. Provide a comma-separated list in DJANGO_ALLOWED_HOSTS.
+_allowed_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS')
+if _allowed_hosts:
+    ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts.split(',') if h.strip()]
+else:
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 INSTALLED_APPS = [
-    # 'corsheaders', #cors origin resources setup
+    'corsheaders',  # enable CORS handling
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -114,7 +120,19 @@ USE_I18N = True
 USE_TZ = True
 
 # cors origin resources setup
-# CORS_ALLOW_ALL_ORIGINS = True
+# Configure allowed origins via DJANGO_CORS_ALLOWED_ORIGINS (comma-separated),
+# or set DJANGO_CORS_ALLOW_ALL=1 to allow all origins (development only).
+_cors_env = os.environ.get('DJANGO_CORS_ALLOWED_ORIGINS')
+if _cors_env:
+    CORS_ALLOWED_ORIGINS = [h.strip() for h in _cors_env.split(',') if h.strip()]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://127.0.0.1:8000",
+        "http://localhost:8000",
+    ]
+
+if os.environ.get('DJANGO_CORS_ALLOW_ALL', '').lower() in ('1', 'true', 'yes'):
+    CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Static files (CSS, JavaScript, Images)

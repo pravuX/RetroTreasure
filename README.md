@@ -1,54 +1,37 @@
-# RetroTreasure - E-Commerce Website
+# RetroTreasure
 
-RetroTreasure is a fully functional e-commerce platform designed for easy online shopping. It offers product listings, a shopping cart, and a buyer dashboard. The project is built using Django for the backend and HTML/CSS for the frontend.
+A lightweight Django e‑commerce application with product listings, cart, user accounts, and payment integration.
 
 ## Features
 
-- **User Registration & Login**: Secure login and registration system for users.
-- **Product Listings**: Browse a wide range of products with images and prices.
-- **Shopping Cart**: Add products to the cart, view cart items, and proceed to checkout.
-- **Buyer Dashboard**: View personal information, cart items, and manage your orders.
+- Custom user model (registration & login)
+- Product listings with images
+- Shopping cart (add / decrement / delete)
+- REST API endpoints (DRF) for cart and payments
+- eSewa payment integration (server-side transaction creation + HMAC signature)
 
-## Installation
+## Quick start
 
-Follow the steps below to set up and run the project on your local machine:
+1. Create and activate a Python virtual environment
+2. pip install -r requirements.txt
+3. python manage.py migrate
+4. python manage.py runserver
 
-### Step 1: Clone the repository
-```bash
-git clone https://github.com/prejanNeu/E-Commerce.git
-cd RetroTreasure
-```
+## Screenshots
 
-### Step 2: Install python
+**Home**  
+![Home](/media/screenshots/home_page.png)
 
-```bash
-sudo apt update
-sudo apt install python3
-```
+**Products**  
+![Products](/media/screenshots/product_page.png)
 
-### Step 3: Install dependencies
+**Cart / Checkout**  
+![Checkout](/media/screenshots/checkout.png)
 
-```bash
-pip install -r requirements.txt
-```
+**Auth**  
+![Login](/media/screenshots/login.png) ![Signup](/media/screenshots/signup.png)
 
-### Step 4: Apply database migrations
-
-```bash
-python manage.py migrate
-```
-
-
-### Step 5: Run the development server
-```bash
-python manage.py runserver
-```
-
-
-### Step 6: Open in Browser
-Visit http://127.0.0.1:8000/ in your browser to start using the platform.
-
-## Website Link
-You can view the live version of the website by visiting: [Visit the RetroTreasure Website](http://prejjj.pythonanywhere.com)
+**Payment**  
+![Payment](/media/screenshots/payment.png)
 
 
